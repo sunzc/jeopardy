@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+# encoding:utf-8
 # File Name: jeopardy_prototype.py
 # Project Name: Jeopardy System
 # Task: realize a off line Jeopardy System
@@ -7,7 +9,7 @@
 # define an off line jeopardy system :
 #
 #	The Jeopardy System we are going to realize is mimicry of the famous American 
-#   TV show “Jeopardy”.
+#   TV show "Jeopardy".
 #
 #	Generally, the system contains three parts, the jeopardy software system, the 
 #   students groups, and the teacher.
@@ -28,43 +30,49 @@
 import sqlite3
 
 class Jeopardy:
-	"""
+    """
 	maintains some static and global information of this Jeopardy system
-	"""
-	def __init__(self):
-		self.dbname = "dbname"
-	def getDatabase(self):
-		return self.dbname
+    """
+    def __init__(self):
+        self.dbname = "dbname"
+    def getDatabase(self):
+        return self.dbname
 
 
 class Group:
-	"""
+    """
 	keeps the basic information of a Group,like Allocated Key, Group's Nickname, 
 	Group's ID, Group's members and Group's Score.
 	A group is created at the register stage, when a registering key is received, we collect useful information
 	and create a group.
 	the group id is allocated by the group pad class, who is in charge of the groups
-	"""
-	def __init__(self, key, nick, members):
-		self.key = key
-		self.nick = nick
-		self.members = members
-		self.score = 0
-	def addScore(self, addAmount):
+    """
+    def __init__(self, key, nick, members):
+        self.key = key
+        self.nick = nick
+        self.members = members
+        self.score = 0
+    def addScore(self, addAmount):
 		# addAmount may be minus, that turns out to be subtract score
-		self.score += addAmount
-	def getKey(self):
-		return self.key
-	
+        self.score += addAmount
+    def getScore(self):
+        return self.score
+    def getKey(self):
+        return self.key
+    def getMembers(self):
+        return self.members
+    def getNick(self):
+        return self.nick
+
 class GroupPad:
 	"""
 	groupPad keeps all the groups information and shows them, group info will be added to a group pad after registered,
 	the initial state of groupPad is empty.
 	we use the key to locate the group
 	"""
-	def __init__(self, group_num = 6):
+	def __init__(self, groupNum = 6):
 	# group_num defines the default max groups
-		self.group_num = group_num
+		self.groupNum = groupNum
 		self.groups = {}
 	def addGroup(self,newGroup):
 		self.groups[newGroup.getKey()] = newGroup
@@ -91,49 +99,52 @@ class Question:
 		return self.answer
 
 class QuestionBoard:
-	"""
+    """
 	a question board keeps the information of all types of questions of different score
 	a certain type of question is stored in a QuestionType object
-	"""
-	def __init__(self,questionTypeList["Common Sense","Programmer Expertise","History & Literature","Economic & Sociology"]):
-		self.questionTypeList = questionTypeList
-		self.typeList = {}
-		for typeName in questionTypeList:
-			self.typeList[typeName] = QuestionType(typeName)			
-	def getQuestionTypeByType(self,typeName):
-		return self.typeList[typeName]
+    """
+    def __init__(self,questionTypeList = ["Common Sense","Programmer Expertise","History Literature","Economic Sociology"]):
+        self.questionTypeList = questionTypeList
+        self.typeList = {}
+        for typeName in questionTypeList:
+            self.typeList[typeName] = QuestionType(typeName)			
+    def getQuestionTypeByType(self,typeName):
+        return self.typeList[typeName]
+    def getQuestionTypeList(self):
+        return self.questionTypeList
 		
 class QuestionType:
-	"""
+    """
 	a question type keeps a list of questionSquare, 
 	we names a certain type list of questions of the score : QuestionSquare
 	scoreTypeList =[100,200,300,400,500]
-	"""
-	def __init__(self,typeName,scoreTypeList=[100,200,300,400,500]):
-		self.typeName = typeName
-		self.scoreTypeList = scoreTypeList
-		self.squareList = {}
-		for score in range(self.scoreTypeList):
-			# default numbers of questions of the same score and type is 10
-			self.squareList[score]=QuestionSquare(typeName,score,num=10)
+    """
+    def __init__(self,typeName,scoreTypeList=[100,200,300,400,500]):
+        self.typeName = typeName
+        self.scoreTypeList = scoreTypeList
+        self.squareList = {}
+        for score in self.scoreTypeList:
+            # default numbers of questions of the same score and type is 10
+            self.squareList[score]=QuestionSquare(typeName,score,num=10)
 			
-	def getQuestionSquareByScore(self,score):
-		return self.squareList[score]
+    def getQuestionSquareByScore(self,score):
+        return self.squareList[score]
 
 class QuestionSquare:
-	"""
+    """
 	a questionSquare contains question of the same type and score, it also represent a square in the question board
 	it is in charge of maintain the question display and numbers of questions left
-	"""
-	def __init__(self, typeName, score, num):
-		dbname = Jeopardy.getDbName()
-		conn = self.connectDatabase(dbname)
-		self.questionList = self.fetchQuestionList(conn,typeName,score,num)
-		self.num = num
-	def connectDatabase(self,dbname):
-		conn = sqlite3.connect(dbname)
+    """
+    def __init__(self, typeName, score, num):
+        jp = Jeopardy()
+        dbname = jp.getDatabase()
+        conn = self.connectDatabase(dbname)
+        self.questionList = self.fetchQuestionList(conn,typeName,score,num)
+        self.num = num
+    def connectDatabase(self,dbname):
+        conn = sqlite3.connect(dbname)
         return conn
-	def fetchQuestionList(self,conn,typeName,score,num):
+    def fetchQuestionList(self,conn,typeName,score,num):
         curs = conn.cursor()
         # get type id
         curs.execute('select * from typetable')
@@ -141,8 +152,8 @@ class QuestionSquare:
         for (t_id,t_name) in curs.fetchall():
             typeDic[t_name]=t_id
         q_type = typeDic[typeName]
-        curs.execute('select * from question where q_type=? and q_score = ?',(q_type,score))
-        int i = 0;
+        curs.execute('select * from questiontable where q_type=? and q_score = ?',(q_type,score))
+        i = 0
         questionList = []
         for(q_id,q_body,q_answer,q_type,q_score) in curs.fetchall():
             if i < num :
@@ -151,14 +162,15 @@ class QuestionSquare:
                 i += 1
             else:
                 break
-		return questionList
-
-	def fetchQuestion(self):
-		self.num -= 1
-		if self.num>=0:
-			return self.questionList[self.num]
-		else:
-			return None
+        return questionList
+    def fetchQuestion(self):
+        self.num -= 1
+        if self.num>=0:
+            return self.questionList[self.num]
+        else:
+            return None
+    def getQuestionNum(self):
+        return self.num
 	
 class QuestionWindow:
 	"""
@@ -184,7 +196,7 @@ class QuestionWindow:
 
 from xml.etree import ElementTree
 class QuestionDatabase:
-	"""
+    """
 	handle input question file, cook them into formatted database file
 	Suppose the input file is in the format of follows:
 		questionFile.xml:
@@ -196,22 +208,22 @@ class QuestionDatabase:
 			<type>Common Sense</type>
 			<score>100</score>
 		</question>
-	"""
-	def __init__(self,inputFile,dbname):
-		self.inputFile = inputFile
-		self.dbname = dbname
-	def connectDatabase(self):
-		conn = sqlite3.connect(self.dbname)
+    """
+    def __init__(self,inputFile,dbname):
+        self.inputFile = inputFile
+        self.dbname = dbname
+    def connectDatabase(self):
+        conn = sqlite3.connect(self.dbname)
         return conn
-	def createTable(self,conn):
-		curs = conn.cursor()
+    def createTable(self,conn):
+        curs = conn.cursor()
         typetablecmd = 'create table typetable (t_id int(4),t_name char(100))'
         questiontablecmd = 'create table questiontable (q_id int(4), q_body char(200),\
                         q_answer char(200),q_type int(4), q_score int(4))'
         curs.execute(typetablecmd)
         curs.execute(questiontablecmd)
         conn.commit()
-	def handleXML(self,conn):
+    def handleXML(self,conn):
         curs = conn.cursor()
         root = ElementTree.parse(r"./questions.xml")
         typeList = root.find('typeList')
@@ -222,7 +234,7 @@ class QuestionDatabase:
             t_id = typeIdNode.text
             t_name = typeNameNode.text
             curs.execute('insert into typetable values(?,?)',(t_id,t_name))
-            
+               
         questionListNode = root.getiterator("question")
         q_id = 0
         for node in questionListNode:
