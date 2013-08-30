@@ -43,8 +43,8 @@ class Group:
     """
 	keeps the basic information of a Group,like Allocated Key, Group's Nickname, 
 	Group's ID, Group's members and Group's Score.
-	A group is created at the register stage, when a registering key is received, we collect useful information
-	and create a group.
+	A group is created at the register stage, when a registering key is received, 
+    we collect useful information and create a group.
 	the group id is allocated by the group pad class, who is in charge of the groups
     """
     def __init__(self, key, nick, members):
@@ -66,7 +66,8 @@ class Group:
 
 class GroupPad:
 	"""
-	groupPad keeps all the groups information and shows them, group info will be added to a group pad after registered,
+	groupPad keeps all the groups information and shows them, group info will
+     be added to a group pad after registered,
 	the initial state of groupPad is empty.
 	we use the key to locate the group
 	"""
@@ -174,8 +175,9 @@ class QuestionSquare:
 	
 class QuestionWindow:
 	"""
-	represent a question being showed, includes the question body, answer, scores, types
-	and the key it get in the race round,as well as the Right or Wrong judge button
+	represent a question being showed, includes the question body, answer, 
+    scores, types and the key it get in the race round,as well as the Right 
+    or Wrong judge button
 	"""
 	def __init__(self, question):
 		self.question = question
