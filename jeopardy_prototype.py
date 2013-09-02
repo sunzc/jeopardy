@@ -142,6 +142,7 @@ class QuestionSquare:
         conn = self.connectDatabase(dbname)
         self.questionList = self.fetchQuestionList(conn,typeName,score,num)
         self.num = num
+        self.score=score
     def connectDatabase(self,dbname):
         conn = sqlite3.connect(dbname)
         return conn
@@ -172,6 +173,8 @@ class QuestionSquare:
             return None
     def getQuestionNum(self):
         return self.num
+    def getScore(self):
+        return self.score
 	
 class QuestionWindow:
 	"""
